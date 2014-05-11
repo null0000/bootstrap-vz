@@ -1,0 +1,1 @@
+T1:23:respawn:/sbin/getty -8 -n -l /bin/bash 38400 ttyS1
