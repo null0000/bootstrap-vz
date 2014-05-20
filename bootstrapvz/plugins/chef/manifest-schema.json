@@ -1,6 +1,6 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
-	"title": "Puppet plugin manifest",
+	"title": "Chef plugin manifest",
 	"type": "object",
 	"properties": {
 		"plugins": {
@@ -11,8 +11,7 @@
 					"properties": {
 						"assets": { "$ref": "#/definitions/absolute_path" }
 					},
-					"minProperties": 1,
-					"additionalProperties": false
+					"required": ["assets"]
 				}
 			}
 		}
