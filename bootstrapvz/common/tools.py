@@ -1,12 +1,15 @@
-def log_check_call(command, stdin=None, env=None, shell=False):
-	status, stdout, stderr = log_call(command, stdin, env, shell)
+import os
+
+
+def log_check_call(command, stdin=None, env=None, shell=False, cwd=None):
+	status, stdout, stderr = log_call(command, stdin, env, shell, cwd)
 	if status != 0:
 		from subprocess import CalledProcessError
 		raise CalledProcessError(status, ' '.join(command), '\n'.join(stderr))
 	return stdout
 
 
-def log_call(command, stdin=None, env=None, shell=False):
+def log_call(command, stdin=None, env=None, shell=False, cwd=None):
 	import subprocess
 	import logging
 	from multiprocessing.dummy import Pool as ThreadPool
@@ -16,7 +19,7 @@ def log_call(command, stdin=None, env=None, shell=False):
 	log = logging.getLogger(__name__ + command_log)
 	log.debug('Executing: {command}'.format(command=' '.join(command)))
 
-	process = subprocess.Popen(args=command, env=env, shell=shell,
+	process = subprocess.Popen(args=command, env=env, shell=shell, cwd=cwd,
 	                           stdin=subprocess.PIPE,
 	                           stdout=subprocess.PIPE,
 	                           stderr=subprocess.PIPE)
@@ -69,20 +72,40 @@ def load_json(path):
 
 def load_yaml(path):
 	import yaml
-	with open(path, 'r') as fobj:
-		return yaml.safe_load(fobj)
+	with open(path, 'r') as stream:
+		return yaml.safe_load(stream)
+
+
+def load_data(path):
+	filename, extension = os.path.splitext(path)
+	if not os.path.isfile(path):
+		raise Exception('The path {path} does not point to a file.'.format(path=path))
+	if extension == '.json':
+		return load_json(path)
+	elif extension == '.yml' or extension == '.yaml':
+		return load_yaml(path)
+	else:
+		raise Exception('Unrecognized extension: {ext}'.format(ext=extension))
 
 
 def config_get(path, config_path):
-	config = load_json(path)
+	config = load_data(path)
 	for key in config_path:
 		config = config.get(key)
 	return config
 
 
+def get_codename(release):
+	"""Normalizes the release codenames
+	This allows tasks to query for release codenames rather than 'stable', 'unstable' etc.
+	"""
+	release_codenames_path = os.path.join(os.path.dirname(__file__), 'release-codenames.yml')
+	from bootstrapvz.common.tools import config_get
+	return config_get(release_codenames_path, [release])
+
+
 def copy_tree(from_path, to_path):
 	from shutil import copy
-	import os
 	for abs_prefix, dirs, files in os.walk(from_path):
 		prefix = os.path.normpath(os.path.relpath(abs_prefix, from_path))
 		for path in dirs:

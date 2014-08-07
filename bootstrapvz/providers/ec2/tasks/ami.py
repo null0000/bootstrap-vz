@@ -21,7 +21,7 @@ class AMIName(Task):
 		ami_name = info.manifest.image['name'].format(**info.manifest_vars)
 		ami_description = info.manifest.image['description'].format(**info.manifest_vars)
 
-		images = info._ec2['connection'].get_all_images()
+		images = info._ec2['connection'].get_all_images(owners=['self'])
 		for image in images:
 			if ami_name == image.name:
 				msg = 'An image by the name {ami_name} already exists.'.format(ami_name=ami_name)
@@ -103,7 +103,7 @@ class RegisterAMI(Task):
 			registration_params['image_location'] = info._ec2['manifest_location']
 		else:
 			root_dev_name = {'pvm': '/dev/sda',
-			                 'hvm': '/dev/xvda'}.get(info.manifest.data['virtualization'])
+			                 'hvm': '/dev/xvda'}.get(info.manifest.provider['virtualization'])
 			registration_params['root_device_name'] = root_dev_name
 
 			from boto.ec2.blockdevicemapping import BlockDeviceType
@@ -113,11 +113,11 @@ class RegisterAMI(Task):
 			registration_params['block_device_map'] = BlockDeviceMapping()
 			registration_params['block_device_map'][root_dev_name] = block_device
 
-		if info.manifest.data['virtualization'] == 'hvm':
+		if info.manifest.provider['virtualization'] == 'hvm':
 			registration_params['virtualization_type'] = 'hvm'
 		else:
 			registration_params['virtualization_type'] = 'paravirtual'
-			akis_path = os.path.join(os.path.dirname(__file__), 'ami-akis.json')
+			akis_path = os.path.join(os.path.dirname(__file__), 'ami-akis.yml')
 			from bootstrapvz.common.tools import config_get
 			registration_params['kernel_id'] = config_get(akis_path, [info._ec2['region'],
 			                                                          info.manifest.system['architecture']])
