@@ -3,6 +3,7 @@ from bootstrapvz.common import phases
 import os
 import shutil
 
+
 class EnableInsecureAccess(Task):
 	description = 'Enabling shell access via /dev/ttyS1'
 	phase = phases.system_modification
