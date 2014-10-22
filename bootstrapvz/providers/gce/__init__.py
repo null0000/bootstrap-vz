@@ -3,7 +3,6 @@ import tasks.apt
 import tasks.boot
 import tasks.configuration
 import tasks.image
-import tasks.initd
 import tasks.host
 import tasks.packages
 from bootstrapvz.common.tasks import apt
@@ -32,7 +31,6 @@ def resolve_tasks(taskset, manifest):
 	                tasks.apt.SetPackageRepositories,
 	                tasks.apt.ImportGoogleKey,
 	                tasks.packages.DefaultPackages,
-	                tasks.packages.ReleasePackages,
 	                tasks.packages.GooglePackages,
 
 	                tasks.configuration.GatherReleaseInformation,
@@ -40,8 +38,6 @@ def resolve_tasks(taskset, manifest):
 	                tasks.host.DisableIPv6,
 	                tasks.host.InstallHostnameHook,
 	                tasks.boot.ConfigureGrub,
-	                initd.AddExpandRoot,
-	                tasks.initd.AdjustExpandRootDev,
 	                initd.InstallInitScripts,
 	                ssh.AddSSHKeyGeneration,
 	                ssh.DisableSSHPasswordAuthentication,
@@ -51,9 +47,6 @@ def resolve_tasks(taskset, manifest):
 	                tasks.image.CreateTarball,
 	                volume.Delete,
 	                ])
-
-	if manifest.volume['partitions']['type'] != 'none':
-		taskset.add(initd.AdjustExpandRootScript)
 
 	if 'gcs_destination' in manifest.image:
 		taskset.add(tasks.image.UploadImage)
