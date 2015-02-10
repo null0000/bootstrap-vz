@@ -7,16 +7,28 @@ from bootstrapvz.base.fs import partitionmaps
 import os.path
 
 
+class UpdateInitramfs(Task):
+	description = 'Updating initramfs'
+	phase = phases.system_modification
+
+	@classmethod
+	def run(cls, info):
+		from ..tools import log_check_call
+		log_check_call(['chroot', info.root, 'update-initramfs', '-u'])
+
+
 class BlackListModules(Task):
 	description = 'Blacklisting kernel modules'
 	phase = phases.system_modification
+	successors = [UpdateInitramfs]
 
 	@classmethod
 	def run(cls, info):
 		blacklist_path = os.path.join(info.root, 'etc/modprobe.d/blacklist.conf')
 		with open(blacklist_path, 'a') as blacklist:
-			blacklist.write(('# disable pc speaker\n'
-			                 'blacklist pcspkr'))
+			blacklist.write(('# disable pc speaker and floppy\n'
+			                 'blacklist pcspkr\n'
+			                 'blacklist floppy\n'))
 
 
 class DisableGetTTYs(Task):
@@ -134,6 +146,19 @@ class AddExtlinuxPackage(Task):
 		info.packages.add('extlinux')
 		if isinstance(info.volume.partition_map, partitionmaps.gpt.GPTPartitionMap):
 			info.packages.add('syslinux-common')
+
+
+class ConfigureExtLinux(Task):
+	description = 'Configuring extlinux'
+	phase = phases.system_modification
+	predecessors = [filesystem.FStab]
+
+	@classmethod
+	def run(cls, info):
+		from bootstrapvz.common.tools import sed_i
+		extlinux_def = os.path.join(info.root, 'etc/default/extlinux')
+		sed_i(extlinux_def, '^EXTLINUX_PARAMETERS="ro quiet"',
+		                    'EXTLINUX_PARAMETERS="ro console=ttyS0"')
 
 
 class InstallExtLinux(Task):
