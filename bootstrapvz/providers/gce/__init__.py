@@ -33,6 +33,7 @@ def resolve_tasks(taskset, manifest):
 	                loopback.Create,
 	                tasks.apt.SetPackageRepositories,
 	                tasks.apt.ImportGoogleKey,
+	                tasks.apt.DisableAptPDiffs,
 	                tasks.packages.DefaultPackages,
 	                tasks.packages.ReleasePackages,
 	                tasks.packages.GooglePackages,

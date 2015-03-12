@@ -6,6 +6,19 @@ from bootstrapvz.common.tools import log_check_call
 import os
 
 
+class DisableAptPDiffs(Task):
+	description = 'Disabling apt pdiffs'
+	phase = phases.package_installation
+	predecessors = [apt.WritePreferences]
+
+	@classmethod
+	def run(cls, info):
+		pdiff_path = os.path.join(info.root, 'etc/apt/apt.conf.d/99disable-pdiffs')
+		disable_pdiff_string = 'Acquire::PDiffs "false";\n'
+		with open(pdiff_path, 'w') as pdiff_file:
+			pdiff_file.write(disable_pdiff_string)
+
+
 class SetPackageRepositories(Task):
 	description = 'Adding apt sources'
 	phase = phases.preparation
