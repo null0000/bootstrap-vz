@@ -40,3 +40,6 @@ plugins:
   ntp:
     servers:
     - metadata.google.internal
+  cloud_init:
+    metadata_sources: GCE
+    username: debian
