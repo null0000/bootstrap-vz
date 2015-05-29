@@ -8,7 +8,6 @@ def validate_manifest(data, validator, error):
 
 def resolve_tasks(taskset, manifest):
 	import tasks
-	import bootstrapvz.providers.ec2.tasks.initd as initd_ec2
 	from bootstrapvz.common.tasks import apt
 	from bootstrapvz.common.tasks import initd
 	from bootstrapvz.common.tasks import ssh
@@ -24,10 +23,3 @@ def resolve_tasks(taskset, manifest):
 	options = manifest.plugins['cloud_init']
 	if 'username' in options:
 		taskset.add(tasks.SetUsername)
-	if 'disable_modules' in options:
-		taskset.add(tasks.DisableModules)
-
-	taskset.discard(initd_ec2.AddEC2InitScripts)
-#	taskset.discard(initd.AddExpandRoot)
-#	taskset.discard(initd.AdjustExpandRootScript)
-	taskset.discard(ssh.AddSSHKeyGeneration)
