@@ -42,5 +42,7 @@ plugins:
     servers:
     - metadata.google.internal
   cloud_init:
-    metadata_sources: GCE
+    metadata_sources: 
+      - GCE
+      - NoCloud
     username: debian
