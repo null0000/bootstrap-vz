@@ -36,20 +36,6 @@ class SetUsername(Task):
 		           '     shell: /bin/bash').format(username=username)
 		sed_i(cloud_cfg, search, replace)
 
-class AddGCE(Task):
-	URL="http://bazaar.launchpad.net/~cloud-init-dev/cloud-init/trunk/download/head:/datasourcegce.py-20140203112309-ig1b1ce94onyzqkg-1/DataSourceGCE.py"
-	
-	phase = phases.system_modification
-	
-	@classmethod
-	def run(cls, info):
-		download-dest=os.path.join(info.workspace, 'DataSourceGCE.py')
-		urllib.urlretrieve(URL, download-dest)
-
-		dst = os.path.join(info.root, 'var/lib/python2.7/dist-packages/cloudinit/sources/')
-		shutil.copy(download-dest, dst)
-
-
 class SetMetadataSource(Task):
 	description = 'Setting metadata source'
 	phase = phases.package_installation
